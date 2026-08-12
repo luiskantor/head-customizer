@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Head Customizer</title>
+  <style>
+    :root{
+      --bg:#f4f1eb;--panel:#101010;--panel2:#181818;--text:#f7f7f5;--muted:#9d9d98;--line:#2a2a2a;--accent:#ff8a2a;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0c0c0c;color:var(--text);overflow:hidden}
+    button,input,select{font:inherit}
+    .app{display:grid;grid-template-columns:360px 1fr;height:100vh}
+    .sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+    .brand{padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+    .brand h1{font-size:17px;margin:0 0 4px;font-weight:650;letter-spacing:-.02em}.brand p{margin:0;color:var(--muted);font-size:12px}
+    .scroll{padding:18px 18px 120px;overflow:auto}
+    .section{padding:15px 0;border-bottom:1px solid var(--line)}
+    .section:first-child{padding-top:0}
+    .section h2{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#b8b8b4;margin:0 0 12px}
+    .field{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin:10px 0}
+    .field label{font-size:13px;color:#e9e9e6}
+    .field small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    input[type="range"]{width:140px;accent-color:#efefeb}
+    input[type="color"]{width:42px;height:30px;border:1px solid var(--line);background:none;padding:3px;border-radius:8px}
+    select,input[type="text"]{background:#202020;color:#f4f4f1;border:1px solid #333;border-radius:10px;padding:9px 10px;outline:none}
+    select{min-width:140px}
+    .toggle{position:relative;width:42px;height:24px;background:#2a2a2a;border-radius:999px;cursor:pointer;border:1px solid #3a3a3a}.toggle:after{content:"";position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:#f3f3ef;transition:.2s}.toggle.on{background:#f2f2ee}.toggle.on:after{left:20px;background:#111}
+    .color-row{display:flex;gap:8px;align-items:center}.color-row input[type="text"]{width:92px;text-transform:uppercase}
+    .btn{border:1px solid #383838;background:#1e1e1e;color:#f4f4f1;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.15s}.btn:hover{background:#282828}.btn.primary{background:#f3f3ef;color:#111;border-color:#f3f3ef}.btn.primary:hover{background:#fff}.btn.small{padding:8px 9px;font-size:12px}.btn.ghost{background:transparent}
+    .toolbar{position:absolute;left:calc(360px + 20px);right:20px;top:20px;display:flex;justify-content:space-between;gap:12px;z-index:10;pointer-events:none}.toolbar>*{pointer-events:auto}
+    .toolbar-group{display:flex;gap:8px;background:rgba(17,17,17,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);padding:7px;border-radius:14px}
+    .stage-wrap{position:relative;background:#e5dfd6;overflow:hidden}
+    .stage{position:absolute;inset:0;display:grid;place-items:center;padding:90px 80px 70px}
+    .checker{background-color:#ece8e0;background-image:linear-gradient(45deg,#ded8cf 25%,transparent 25%),linear-gradient(-45deg,#ded8cf 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ded8cf 75%),linear-gradient(-45deg,transparent 75%,#ded8cf 75%);background-size:34px 34px;background-position:0 0,0 17px,17px -17px,-17px 0}
+    #previewCard{width:min(900px,85%);aspect-ratio:4/3;border-radius:26px;display:grid;place-items:center;position:relative;transition:.2s;overflow:hidden}
+    #previewCard.bg{background:#f6efe7;box-shadow:0 28px 80px rgba(0,0,0,.11)}
+    #previewSvg{width:86%;height:86%;overflow:visible}
+    .footer-note{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;color:#52504b;background:rgba(255,255,255,.66);padding:7px 10px;border-radius:999px;backdrop-filter:blur(8px)}
+    .variants{display:flex;flex-direction:column;gap:8px;margin-top:10px}.variant{display:grid;grid-template-columns:28px 1fr auto;gap:9px;align-items:center;padding:8px;border:1px solid #303030;border-radius:11px;background:#171717}.swatch{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.15)}.variant .meta{min-width:0}.variant .name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.variant .hex{font-size:10px;color:var(--muted)}.variant .remove{border:0;background:none;color:#777;cursor:pointer;font-size:17px;line-height:1}.variant .remove:hover{color:#fff}
+    .row{display:flex;gap:8px}.row>*{flex:1}
+    .hint{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+    .badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:#242424;color:#bdbdb8;font-size:10px;border:1px solid #333;margin-left:6px}
+    @media(max-width:900px){body{overflow:auto}.app{grid-template-columns:1fr;height:auto;min-height:100vh}.sidebar{height:auto}.stage-wrap{height:68vh;min-height:520px}.toolbar{left:16px;right:16px;top:auto;bottom:16px}.stage{padding:40px 20px 100px}#previewCard{width:94%}.footer-note{display:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><h1>Head Customizer <span class="badge">Prototype</span></h1><p>Farben, Materialien, Accessoires & Export</p></div>
+    <div class="scroll">
+      <section class="section">
+        <h2>Grundform</h2>
+        <div class="field"><label>Breite</label><input id="headWidth" type="range" min="460" max="760" value="640"></div>
+        <div class="field"><label>Höhe</label><input id="headHeight" type="range" min="260" max="460" value="388"></div>
+        <div class="field"><label>Rundung</label><input id="headRadius" type="range" min="70" max="220" value="176"></div>
+        <div class="field"><label>Augenabstand</label><input id="eyeSpacing" type="range" min="120" max="340" value="272"></div>
+        <div class="field"><label>Augengröße</label><input id="eyeSize" type="range" min="9" max="28" value="15"></div>
+      </section>
+
+      <section class="section">
+        <h2>Farbe & Material</h2>
+        <div class="field"><label>Basisfarbe</label><div class="color-row"><input id="baseColor" type="color" value="#EFE4D3"><input id="hexColor" type="text" value="#EFE4D3" maxlength="7"></div></div>
+        <div class="field"><label>Material</label><select id="material"><option value="matte">Matte</option><option value="flat">Flat</option><option value="gold">Gold</option><option value="chrome">Chrome</option><option value="glass">Glass</option><option value="pearl">Pearl</option></select></div>
+        <div class="field"><label>Intensität</label><input id="intensity" type="range" min="0" max="100" value="70"></div>
+      </section>
+
+      <section class="section">
+        <h2>Gesicht & Accessoires</h2>
+        <div class="field"><label>Augen</label><select id="eyes"><option value="dots">Punkte</option><option value="soft">Soft 3D</option><option value="sleepy">Sleepy</option></select></div>
+        <div class="field"><label>Accessoire</label><select id="accessory"><option value="none">Keins</option><option value="glasses">Brille</option><option value="sunglasses">Sonnenbrille</option><option value="cap">Cap</option><option value="crown">Krone</option><option value="halo">Halo</option></select></div>
+        <div class="field"><label>Accessoire-Farbe</label><input id="accessoryColor" type="color" value="#161616"></div>
+      </section>
+
+      <section class="section">
+        <h2>Vorschau</h2>
+        <div class="field"><label>Hintergrund anzeigen<small>Nur Vorschau, nicht PNG/SVG</small></label><div id="bgToggle" class="toggle on" role="switch" aria-checked="true"></div></div>
+        <div class="field"><label>Schatten</label><div id="shadowToggle" class="toggle on" role="switch" aria-checked="true"></div></div>
+      </section>
+
+      <section class="section">
+        <h2>Farbvarianten</h2>
+        <div class="row"><button class="btn small" id="addVariant">Aktuelle hinzufügen</button><button class="btn small" id="autoPalette">8er-Palette</button></div>
+        <div class="variants" id="variants"></div>
+        <p class="hint">PDF-Export legt alle gespeicherten Varianten als sauberes Grid an. Material, Form und Accessoire bleiben identisch; die Basisfarbe ändert sich pro Variante.</p>
+      </section>
+    </div>
+  </aside>
+
+  <main class="stage-wrap checker" id="stageWrap">
+    <div class="toolbar">
+      <div class="toolbar-group"><button class="btn ghost small" id="resetBtn">Reset</button></div>
+      <div class="toolbar-group"><button class="btn small" id="exportSvg">SVG</button><button class="btn small" id="exportPng">PNG transparent</button><button class="btn primary small" id="exportPdf">PDF Varianten</button></div>
+    </div>
+    <div class="stage">
+      <div id="previewCard" class="bg"><svg id="previewSvg" viewBox="0 0 1200 900" aria-label="Head preview"></svg></div>
+    </div>
+    <div class="footer-note">PNG & SVG werden ohne Hintergrund exportiert · PDF-Seite bleibt weiß, der Kopf selbst hat keinen eingebrannten Hintergrund</div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const $ = (id)=>document.getElementById(id);
+const state = {
+  headWidth:640, headHeight:388, headRadius:176, eyeSpacing:272, eyeSize:15,
+  baseColor:'#EFE4D3', material:'matte', intensity:70, eyes:'dots', accessory:'none', accessoryColor:'#161616',
+  bg:true, shadow:true, variants:[]
+};
+
+function hexToRgb(hex){
+  const v = hex.replace('#','');
+  const n = parseInt(v,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function clamp(v){return Math.max(0,Math.min(255,Math.round(v)))}
+function mix(hex, target, amount){
+  const a=hexToRgb(hex), b=hexToRgb(target); const t=amount;
+  const r=clamp(a.r+(b.r-a.r)*t),g=clamp(a.g+(b.g-a.g)*t),bb=clamp(a.b+(b.b-a.b)*t);
+  return '#'+[r,g,bb].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function escapeXml(s){return String(s).replace(/[<>&'\"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','\"':'&quot;'}[c]));}
+
+function defs(color, material, intensity, shadow){
+  const i = intensity/100;
+  const hi1 = mix(color,'#FFFFFF',0.30 + 0.10*i);
+  const hi2 = mix(color,'#FFFFFF',0.17 + 0.08*i);
+  const hi3 = mix(color,'#FFF7F0',0.10 + 0.06*i);
+  const mid = color;
+  const lo1 = mix(color,'#000000',0.08 + 0.06*i);
+  const lo2 = mix(color,'#000000',0.14 + 0.08*i);
+  const ambient = mix(color,'#8B7765',0.14);
+  let paint = '';
+  if(material==='flat') paint = `<linearGradient id="headPaint"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${color}"/></linearGradient>`;
+  if(material==='matte') paint = `
+    <radialGradient id="headPaint" cx="38%" cy="24%" r="88%">
+      <stop offset="0%" stop-color="${hi1}"/>
+      <stop offset="28%" stop-color="${hi2}"/>
+      <stop offset="52%" stop-color="${hi3}"/>
+      <stop offset="72%" stop-color="${mid}"/>
+      <stop offset="88%" stop-color="${lo1}"/>
+      <stop offset="100%" stop-color="${lo2}"/>
+    </radialGradient>
+    <radialGradient id="highlightPaint" cx="24%" cy="18%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="24%" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="58%" stop-color="#FFFFFF" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="volumeShade" cx="76%" cy="76%" r="66%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.12"/>
+      <stop offset="54%" stop-color="#000000" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rimShade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="36%" stop-color="#FFFFFF" stop-opacity="0.00"/>
+      <stop offset="70%" stop-color="#000000" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.10"/>
+    </linearGradient>
+    <linearGradient id="undersideShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${ambient}" stop-opacity="0"/>
+      <stop offset="70%" stop-color="${ambient}" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="${ambient}" stop-opacity="0.16"/>
+    </linearGradient>
+    <filter id="matteNoise" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="7" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="softNoise">
+        <feFuncA type="table" tableValues="0 0.03"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>`;
+  if(material==='gold') paint = `<linearGradient id="headPaint" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6F4709"/><stop offset=".14" stop-color="#D39A20"/><stop offset=".31" stop-color="#FFF1A6"/><stop offset=".46" stop-color="#B8790E"/><stop offset=".66" stop-color="#FFE07A"/><stop offset=".83" stop-color="#9B6208"/><stop offset="1" stop-color="#F7C64C"/></linearGradient>`;
+  if(material==='chrome') paint = `<linearGradient id="headPaint" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7FAFF"/><stop offset=".16" stop-color="#6E7681"/><stop offset=".31" stop-color="#F9FCFF"/><stop offset=".47" stop-color="#828A93"/><stop offset=".61" stop-color="#FFFFFF"/><stop offset=".77" stop-color="#555B64"/><stop offset="1" stop-color="#D9DEE5"/></linearGradient>`;
+  if(material==='glass') paint = `<linearGradient id="headPaint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hi1}" stop-opacity="${0.26+0.2*i}"/><stop offset=".48" stop-color="${color}" stop-opacity="${0.14+0.18*i}"/><stop offset="1" stop-color="${lo1}" stop-opacity="${0.18+0.18*i}"/></linearGradient>`;
+  if(material==='pearl') paint = `<radialGradient id="headPaint" cx="35%" cy="22%" r="85%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".23" stop-color="${hi1}"/><stop offset=".6" stop-color="${hi2}"/><stop offset="1" stop-color="${mix(color,'#D8CDEB',.32)}"/></radialGradient>`;
+  return `<defs>${paint}
+    <radialGradient id="eyePaint"><stop offset="0" stop-color="#424242"/><stop offset="1" stop-color="#101010"/></radialGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000" flood-opacity=".16"/></filter>
+    <linearGradient id="glassStroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".88"/><stop offset="1" stop-color="#fff" stop-opacity=".22"/></linearGradient>
+  </defs>`;
+}
+
+function accessories(type, color, cx, cy, w, h){
+  const top = cy-h/2, left=cx-w/2, right=cx+w/2;
+  if(type==='none') return '';
+  if(type==='glasses'){
+    const y=cy+10, lensW=130,lensH=82,gap=54;
+    return `<g fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round"><rect x="${cx-gap/2-lensW}" y="${y-lensH/2}" width="${lensW}" height="${lensH}" rx="34"/><rect x="${cx+gap/2}" y="${y-lensH/2}" width="${lensW}" height="${lensH}" rx="34"/><path d="M ${cx-gap/2} ${y} H ${cx+gap/2}"/><path d="M ${cx-gap/2-lensW} ${y-10} L ${left+30} ${y-36}"/><path d="M ${cx+gap/2+lensW} ${y-10} L ${right-30} ${y-36}"/></g>`;
+  }
+  if(type==='sunglasses'){
+    const y=cy+8,lensW=138,lensH=86,gap=46;
+    return `<g stroke="${color}" stroke-width="11" stroke-linecap="round"><rect x="${cx-gap/2-lensW}" y="${y-lensH/2}" width="${lensW}" height="${lensH}" rx="32" fill="#111"/><rect x="${cx+gap/2}" y="${y-lensH/2}" width="${lensW}" height="${lensH}" rx="32" fill="#111"/><path d="M ${cx-gap/2} ${y} H ${cx+gap/2}" fill="none"/></g>`;
+  }
+  if(type==='cap'){
+    return `<g><path d="M ${cx-w*.32} ${top+30} Q ${cx} ${top-68} ${cx+w*.31} ${top+30} L ${cx+w*.26} ${top+96} Q ${cx} ${top+64} ${cx-w*.30} ${top+98} Z" fill="${color}"/><path d="M ${cx+w*.08} ${top+72} Q ${cx+w*.35} ${top+70} ${cx+w*.48} ${top+116} Q ${cx+w*.23} ${top+130} ${cx+w*.02} ${top+100} Z" fill="${mix(color,'#000000',.12)}"/></g>`;
+  }
+  if(type==='crown'){
+    return `<g transform="translate(0,-8)"><path d="M ${cx-180} ${top+65} L ${cx-135} ${top-42} L ${cx-48} ${top+42} L ${cx} ${top-75} L ${cx+52} ${top+42} L ${cx+145} ${top-45} L ${cx+185} ${top+65} Z" fill="${color}"/><rect x="${cx-182}" y="${top+58}" width="364" height="46" rx="17" fill="${mix(color,'#000000',.1)}"/></g>`;
+  }
+  if(type==='halo'){
+    return `<ellipse cx="${cx}" cy="${top-36}" rx="${w*.29}" ry="38" fill="none" stroke="${color}" stroke-width="18" opacity=".88"/>`;
+  }
+  return '';
+}
+
+function eyesMarkup(type, cx, cy, spacing, size){
+  const y=cy+32;
+  if(type==='dots') return `<circle cx="${cx-spacing/2}" cy="${y}" r="${size}" fill="#171717"/><circle cx="${cx+spacing/2}" cy="${y}" r="${size}" fill="#171717"/>`;
+  if(type==='soft') return `<circle cx="${cx-spacing/2}" cy="${y}" r="${size}" fill="url(#eyePaint)"/><circle cx="${cx+spacing/2}" cy="${y}" r="${size}" fill="url(#eyePaint)"/>`;
+  if(type==='sleepy') return `<path d="M ${cx-spacing/2-size*1.2} ${y} Q ${cx-spacing/2} ${y+size*.8} ${cx-spacing/2+size*1.2} ${y}" fill="none" stroke="#171717" stroke-width="${Math.max(8,size*.6)}" stroke-linecap="round"/><path d="M ${cx+spacing/2-size*1.2} ${y} Q ${cx+spacing/2} ${y+size*.8} ${cx+spacing/2+size*1.2} ${y}" fill="none" stroke="#171717" stroke-width="${Math.max(8,size*.6)}" stroke-linecap="round"/>`;
+  return '';
+}
+
+function svgString(overrideColor=null){
+  const s={...state, baseColor:overrideColor || state.baseColor};
+  const cx=600, cy=450, w=s.headWidth,h=s.headHeight,x=cx-w/2,y=cy-h/2;
+  const rx=Math.min(s.headRadius,h/2);
+  const stroke = s.material==='glass' ? `stroke="url(#glassStroke)" stroke-width="8"` : '';
+  const shadow = s.shadow ? 'filter="url(#shadow)"' : '';
+  const headShape = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"/>`;
+  const matteLayers = s.material==='matte' ? `
+    <g clip-path="url(#headClip)">
+      <ellipse cx="${cx-w*.19}" cy="${cy-h*.19}" rx="${w*.31}" ry="${h*.18}" fill="url(#highlightPaint)" filter="url(#softBlur)"/>
+      <ellipse cx="${cx-w*.05}" cy="${cy-h*.27}" rx="${w*.18}" ry="${h*.08}" fill="#FFFFFF" opacity="0.11" filter="url(#softBlur)" transform="rotate(-8 ${cx} ${cy})"/>
+      <ellipse cx="${cx+w*.18}" cy="${cy+h*.16}" rx="${w*.34}" ry="${h*.19}" fill="url(#volumeShade)" filter="url(#softBlur)"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="url(#rimShade)"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="url(#undersideShade)"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" filter="url(#matteNoise)" opacity="0.42"/>
+      <ellipse cx="${cx}" cy="${y+h-6}" rx="${w*.32}" ry="${h*.035}" fill="#000" opacity="0.045" filter="url(#softBlur)"/>
+    </g>
+  ` : '';
+  const shine = (s.material==='gold'||s.material==='chrome'||s.material==='glass'||s.material==='pearl') ? `<ellipse cx="${cx-w*.10}" cy="${cy-h*.23}" rx="${w*.23}" ry="${h*.10}" fill="#fff" opacity="${s.material==='glass' ? .26 : .12}" transform="rotate(-8 ${cx} ${cy})"/>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">${defs(s.baseColor,s.material,s.intensity,s.shadow)}<defs><clipPath id="headClip">${headShape}</clipPath></defs><g ${shadow}><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="url(#headPaint)" ${stroke}/>${matteLayers}${shine}${eyesMarkup(s.eyes,cx,cy,s.eyeSpacing,s.eyeSize)}${accessories(s.accessory,s.accessoryColor,cx,cy,w,h)}</g></svg>`;
+}
+
+function render(){
+  $('previewSvg').outerHTML = svgString().replace('<svg xmlns="http://www.w3.org/2000/svg"','<svg id="previewSvg" aria-label="Head preview"');
+  $('previewCard').classList.toggle('bg',state.bg);
+  $('stageWrap').classList.toggle('checker',!state.bg);
+  $('stageWrap').style.background = state.bg ? '#e5dfd6' : '';
+  $('hexColor').value=state.baseColor.toUpperCase();
+}
+
+function bindRange(id,key){$(id).addEventListener('input',e=>{state[key]=+e.target.value;render();});}
+['headWidth','headHeight','headRadius','eyeSpacing','eyeSize','intensity'].forEach(id=>bindRange(id,id));
+$('baseColor').addEventListener('input',e=>{state.baseColor=e.target.value.toUpperCase();render();});
+$('hexColor').addEventListener('change',e=>{let v=e.target.value.trim();if(!v.startsWith('#'))v='#'+v;if(/^#[0-9a-fA-F]{6}$/.test(v)){state.baseColor=v.toUpperCase();$('baseColor').value=v;render();}else e.target.value=state.baseColor;});
+['material','eyes','accessory'].forEach(id=>$(id).addEventListener('change',e=>{state[id]=e.target.value;render();}));
+$('accessoryColor').addEventListener('input',e=>{state.accessoryColor=e.target.value;render();});
+function toggle(id,key){$(id).addEventListener('click',()=>{state[key]=!state[key];$(id).classList.toggle('on',state[key]);$(id).setAttribute('aria-checked',state[key]);render();});}
+toggle('bgToggle','bg');toggle('shadowToggle','shadow');
+
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},400)}
+$('exportSvg').addEventListener('click',()=>download(new Blob([svgString()],{type:'image/svg+xml;charset=utf-8'}),`head-${state.baseColor.slice(1)}-${state.material}.svg`));
+
+function svgToCanvas(svg, width=2400, height=1800){
+  return new Promise((resolve,reject)=>{const img=new Image();const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});const url=URL.createObjectURL(blob);img.onload=()=>{const c=document.createElement('canvas');c.width=width;c.height=height;const ctx=c.getContext('2d');ctx.clearRect(0,0,width,height);ctx.drawImage(img,0,0,width,height);URL.revokeObjectURL(url);resolve(c)};img.onerror=reject;img.src=url;});
+}
+$('exportPng').addEventListener('click',async()=>{const c=await svgToCanvas(svgString(),2400,1800);c.toBlob(b=>download(b,`head-${state.baseColor.slice(1)}-${state.material}-transparent.png`),'image/png');});
+
+function renderVariants(){
+  const box=$('variants');box.innerHTML='';
+  state.variants.forEach((v,i)=>{const el=document.createElement('div');el.className='variant';el.innerHTML=`<div class="swatch" style="background:${v.color}"></div><div class="meta"><div class="name">${escapeXml(v.name)}</div><div class="hex">${v.color}</div></div><button class="remove" title="Entfernen">×</button>`;el.querySelector('.swatch').addEventListener('click',()=>{state.baseColor=v.color;$('baseColor').value=v.color;render()});el.querySelector('.remove').addEventListener('click',()=>{state.variants.splice(i,1);renderVariants()});box.appendChild(el)});
+}
+$('addVariant').addEventListener('click',()=>{if(!state.variants.some(v=>v.color===state.baseColor))state.variants.push({color:state.baseColor,name:`Variante ${state.variants.length+1}`});renderVariants();});
+function hslToHex(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return '#'+[f(0),f(8),f(4)].map(x=>Math.round(255*x).toString(16).padStart(2,'0')).join('').toUpperCase()}
+$('autoPalette').addEventListener('click',()=>{const rgb=hexToRgb(state.baseColor);const max=Math.max(rgb.r,rgb.g,rgb.b),min=Math.min(rgb.r,rgb.g,rgb.b);let h=0;const d=max-min;if(d){if(max===rgb.r)h=60*(((rgb.g-rgb.b)/d)%6);else if(max===rgb.g)h=60*((rgb.b-rgb.r)/d+2);else h=60*((rgb.r-rgb.g)/d+4)}if(h<0)h+=360;state.variants=[];for(let i=0;i<8;i++)state.variants.push({color:hslToHex((h+i*45)%360,78,58),name:`Hue ${i+1}`});renderVariants();});
+
+$('exportPdf').addEventListener('click',async()=>{
+  if(!window.jspdf){alert('PDF-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');return}
+  const variants=state.variants.length?state.variants:[{color:state.baseColor,name:'Aktuell'}];
+  const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pageW=210,pageH=297,margin=14,cols=3,rows=4,gapX=6,gapY=9,cellW=(pageW-margin*2-gapX*(cols-1))/cols,cellH=(pageH-margin*2-gapY*(rows-1))/rows;
+  for(let i=0;i<variants.length;i++){
+    if(i>0 && i%(cols*rows)===0)pdf.addPage();
+    const idx=i%(cols*rows),col=idx%cols,row=Math.floor(idx/cols),x=margin+col*(cellW+gapX),y=margin+row*(cellH+gapY);
+    const c=await svgToCanvas(svgString(variants[i].color),1200,900); const data=c.toDataURL('image/png');
+    const imgW=cellW, imgH=imgW*.75; pdf.addImage(data,'PNG',x,y+3,imgW,imgH,undefined,'FAST');
+    pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor(45,45,45);pdf.text(`${variants[i].name} · ${variants[i].color}`,x,y+imgH+9);
+  }
+  pdf.save(`head-variants-${state.material}.pdf`);
+});
+
+$('resetBtn').addEventListener('click',()=>{
+  Object.assign(state,{headWidth:640,headHeight:388,headRadius:176,eyeSpacing:272,eyeSize:15,baseColor:'#EFE4D3',material:'matte',intensity:74,eyes:'dots',accessory:'none',accessoryColor:'#161616',bg:true,shadow:true});
+  ['headWidth','headHeight','headRadius','eyeSpacing','eyeSize','intensity'].forEach(id=>$(id).value=state[id]);$('baseColor').value=state.baseColor;$('material').value=state.material;$('eyes').value=state.eyes;$('accessory').value=state.accessory;$('accessoryColor').value=state.accessoryColor;$('bgToggle').classList.add('on');$('shadowToggle').classList.add('on');render();
+});
+
+render();renderVariants();
+</script>
+</body>
+</html>
